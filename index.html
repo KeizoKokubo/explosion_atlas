@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>爆発の構造地図 — Phase 4</title><style>
+:root{font-family:system-ui,"Noto Sans JP",sans-serif;color:#e7effa;background:#08111e}*{box-sizing:border-box}body{margin:0;overflow:hidden}#view{position:fixed;inset:0}#ui{position:absolute;top:16px;left:16px;width:min(340px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;background:#0d192be8;border:1px solid #34445d;border-radius:16px;padding:17px;box-shadow:0 10px 40px #0008}h1{font-size:19px;margin:0 0 6px}p{color:#a5b8cb;font-size:12px;line-height:1.65;margin:6px 0 12px}.pill{font-size:10px;color:#7bd2ed;letter-spacing:.1em;font-weight:bold}.buttons{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}button{background:#253750;border:1px solid #526783;color:#eaf4ff;padding:7px 10px;border-radius:8px;cursor:pointer;font-size:12px}button:hover{background:#36516d}button.active{border-color:#7bd2ed;background:#1b5064}.axis{display:flex;align-items:center;gap:7px;font-size:12px;padding:5px 0}.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}.axis small{color:#a5b8cb;margin-left:auto;font-size:10px}.item{display:flex;gap:9px;align-items:center;padding:7px 0;border-bottom:1px solid #ffffff16;font-size:13px;cursor:pointer}.item input{accent-color:#65cbe7}.item span{flex:1}.item button{padding:3px 7px}#info{margin-top:10px;background:#15263a;border-radius:10px;padding:10px;font-size:12px;line-height:1.6;color:#bdcede;min-height:74px}#info strong{color:white}.tip{color:#8ca4ba;font-size:11px}#loading{position:absolute;inset:0;display:grid;place-items:center;background:#08111e;color:#d3e8f7;z-index:5}#labels{position:absolute;inset:0;pointer-events:none}.lab{position:absolute;transform:translate(-50%,-50%);color:#e9f3fb;background:#0b1523df;border:1px solid #ffffff45;padding:3px 7px;border-radius:5px;white-space:nowrap;font-size:11px;text-shadow:0 1px 3px black}.lab.heading{font-size:12px;font-weight:700;letter-spacing:.04em}.lab.sub{font-size:10px;background:#172840f0}.legend{margin:6px 0 0;padding:0;list-style:none}#help{position:absolute;right:14px;bottom:12px;color:#b5c9da;background:#0d192bba;padding:8px 11px;border-radius:8px;font-size:11px;line-height:1.6;text-align:right;pointer-events:none}@media(max-width:700px){#ui{top:8px;left:8px;width:min(290px,calc(100vw - 16px));padding:12px;max-height:54vh}#help{font-size:10px}}
+.scale{font-size:11px;color:#c2d6e7;background:#12283e;padding:9px;border-radius:9px;margin:8px 0;line-height:1.7}.mini{font-size:10px;color:#92b7ca}.item.selected{background:#244059;border-radius:6px}.item button{margin-left:auto}.range{accent-color:#74d5eb;width:100%}#floatTip{position:fixed;pointer-events:none;display:none;background:#0b2035ed;color:#fff;border:1px solid #66c4e3;border-radius:8px;padding:6px 9px;font-size:11px;z-index:4} 
+#phase3-controls{margin:9px 0}#searchEvent,select{width:100%;border:1px solid #526783;background:#13243a;color:#eaf4ff;border-radius:8px;padding:9px;font:inherit;font-size:12px}#searchEvent:focus,select:focus,button:focus-visible{outline:2px solid #7bd2ed;outline-offset:2px}#events{max-height:250px;overflow:auto;scrollbar-color:#47637d #101d30}.item.hiddenSearch{display:none}section#reverseSection,section#compareSection{border-top:1px solid #35445b;margin-top:14px;padding-top:9px}h2{font-size:13px;margin:5px 0}#filters{display:grid;grid-template-columns:1fr;gap:6px;margin:10px 0}#filters label{font-size:11px;display:flex;align-items:center;justify-content:space-between;gap:5px}#filters select{width:60%;font-size:11px;padding:5px}#comparison{font-size:11px;line-height:1.65;background:#15263a;border-radius:8px;padding:8px;margin:7px 0;display:none}#comparison b{color:#eaf4ff}.compareSelect{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:7px}#presets button{font-size:11px;padding:5px 7px}#presets .active{border-color:#7bd2ed}.metaRow{display:flex;justify-content:space-between;gap:8px;margin-top:5px;font-size:10px;color:#8ca4ba}#ui{width:min(370px,calc(100vw - 32px))}
+
+#flatView{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 18px 18px 380px;background:#08111e;color:#e5eff9}
+#flatView[hidden]{display:none}#flatCanvas{width:100%;min-height:0;flex:1;display:grid;place-items:center}#flatCanvas svg{display:block;width:min(100%,calc(100vh - 142px));height:auto;max-height:calc(100vh - 142px);overflow:visible}#flatCanvas .sectorLabel{font-size:12px;font-weight:700;fill:#ecf4ff}#flatCanvas .categoryLabel{font-size:9px;fill:#d7e6f4;pointer-events:none}#flatCanvas .target{cursor:pointer}#flatCanvas .target:hover{stroke:white;stroke-width:2.5}#flatCanvas .node{cursor:pointer;stroke:#07111e;stroke-width:1.2}#flatCanvas .node:hover{stroke:#fff;stroke-width:3}.flatHeader,.flatFooter{width:100%;max-width:900px;display:flex;gap:12px;align-items:baseline;justify-content:center;flex-wrap:wrap;text-align:center}.flatHeader{font-size:14px}.flatHeader span,.flatFooter{font-size:11px;color:#9fb7cb}.flatFooter{padding:8px 0}.flatOnly{display:none}body.mode2d .scale{display:none}body.mode2d #cameraButtons{display:none}body.mode2d #help{display:none}body.mode2d #labels{display:none}body.mode2d #view{display:none}
+@media(max-width:850px){#flatView{padding:58vh 8px 8px;justify-content:flex-start;overflow:auto}#flatCanvas{flex:none;height:min(96vw,70vh)}#flatCanvas svg{width:min(96vw,70vh);max-height:none}#ui{max-height:55vh;width:min(370px,calc(100vw - 16px));top:8px;left:8px}.flatHeader{font-size:12px}}
+/* Keep the visualization in its own viewport, clear of the controls. */
+:root{--panel-height:34vh;--panel-height:34dvh}
+#ui{left:auto;right:16px}
+#view,#labels{left:0;right:402px;overflow:hidden}
+#view canvas{display:block;touch-action:none}
+#flatView{left:0;right:402px;padding:16px}
+#help{right:416px}
+#panelToggle{display:none}
+@media(max-width:850px){
+ #ui{position:fixed;top:auto;bottom:8px;left:8px;right:8px;width:auto;height:var(--panel-height);max-height:var(--panel-height);padding:12px;z-index:2}
+ #panelToggle{display:block;float:right;min-height:32px;margin-left:8px}
+ #view,#labels{inset:0 0 calc(var(--panel-height) + 16px)}
+ #flatView{inset:0 0 calc(var(--panel-height) + 16px);padding:10px 8px;justify-content:flex-start;overflow:auto}
+ #flatCanvas{flex:none;width:100%;height:auto;min-height:0}
+ #flatCanvas svg{width:100%;height:auto;max-height:none}
+ #flatCanvas .sectorLabel{font-size:16px}
+ #flatCanvas .categoryLabel{font-size:13px}
+ .flatHeader{gap:4px}.flatFooter{flex-shrink:0}
+ #help{right:8px;bottom:calc(var(--panel-height) + 22px);font-size:10px}
+ body.panelCollapsed{--panel-height:150px}
+ #ui.collapsed{overflow:hidden}
+ #ui.collapsed > :not(#panelToggle):not(.pill):not(h1):not([aria-label="表示形式"]){display:none}
+}</style></head><body><div id="view"></div><div id="labels"></div><main id="flatView" aria-label="2D同心円分類図" hidden><div class="flatHeader"><strong>2D 同心円分類図</strong><span>中心→外：カテゴリ段／扇形：分類軸　※時間半径は省略</span></div><div id="flatCanvas"></div><div class="flatFooter">線＝同一事象の分類を結ぶ（因果順序ではない）／点の微小なずれ＝重なり防止（物理量ではない）／主分類は大きい点・副分類は小さい点</div></main><div id="loading">3D分類空間を読み込み中…</div><aside id="ui"><button id="panelToggle" aria-expanded="true" aria-controls="ui">操作を縮小</button><div class="pill">N I Y A N I Y A ・ S C I E N C E</div><h1>爆発の構造地図 <small style="font-size:11px;color:#78ccdd">Phase 4</small></h1><p>3D分類壁と2D同心円を切り替えて探索。表示・検索・逆引き・比較の状態は共通です。</p><div class="buttons" role="group" aria-label="表示形式"><button id="mode3d" class="active" aria-pressed="true">立体 3D</button><button id="mode2d" aria-pressed="false">同心円 2D</button></div><div class="buttons" id="cameraButtons"><button id="home">視点リセット</button><button id="top">上から</button><button id="spin">自動回転 OFF</button><button id="labelsBtn" class="active">ラベル ON</button></div><div id="axes"></div><div class="scale"><b>半径：エネルギー解放時間の概念値</b><div>内側：短時間　→　外側：長時間（対数スケール）</div><div id="timeLegend"></div><label><input type="checkbox" id="timeOn" checked> 時間半径を表示</label><div class="mini">時間は実測値ではなく仮の配置例。物理的な時間を断定しません。</div></div><hr style="border:0;border-top:1px solid #35445b"><div style="display:flex;align-items:center;justify-content:space-between"><b style="font-size:13px">爆発事象</b><div><button id="all">全表示</button><button id="none">全非表示</button></div></div><div id="phase3-controls"><label class="mini" for="searchEvent">事象を検索</label><input id="searchEvent" type="search" placeholder="名称・説明・分類を検索…" autocomplete="off"><div class="buttons" id="presets"></div><div id="listCount" class="mini"></div></div><div id="events"></div><section id="reverseSection"><h2>分類から逆引き</h2><p>分類セルの組み合わせを指定して、一致する事象だけを表示できます。複数条件はAND検索です。</p><div class="buttons"><button id="clearFilters">条件を解除</button><button id="showMatched">一致のみ表示</button></div><div id="filters"></div><div id="matchCount" class="mini"></div></section><section id="compareSection"><h2>2事象比較</h2><p>2つの事象を選ぶと、該当する線とマーカーが強調され、共通点と相違点を表示します。</p><div class="compareSelect"><select id="compareA" aria-label="比較する事象A"></select><select id="compareB" aria-label="比較する事象B"></select></div><div class="buttons"><button id="compareStart">比較する</button><button id="compareStop">比較解除</button></div><div id="comparison"></div></section><div id="info"><strong>使い方</strong><div>事象名または空間内の球をクリックすると分類の詳細を表示。ON/OFFを切り替えて比較できます。</div></div><p class="tip">※Phase 4：時間と規模は表示設計を検証するための仮値であり、実測値ではありません。同一セルの点は視認性のため接線方向にずらしており、値の違いを意味しません。</p></aside><div id="floatTip"></div><div id="help">左ドラッグ：回転 ／ 右ドラッグ：平行移動<br>ホイール：拡大縮小 ／ ダブルクリック：視点リセット</div><script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script><script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+const AXES=[
+ {name:'エネルギー源',color:'#47c5d8',entries:['化学','熱','圧力','核','運動']},
+ {name:'主要駆動過程',color:'#ecad53',entries:['燃焼','分解','相変化','急膨張','核反応']},
+ {name:'現象の進行機構',color:'#aa80f1',entries:['爆燃','爆轟','急減圧・破裂','衝撃波','その他・複合']},
+ {name:'周囲の拘束条件',color:'#74cb9a',entries:['開放','半密閉','密閉','条件依存']},
+ {name:'主な作用',color:'#f08098',entries:['圧力','熱','飛散物','音','放射線']}
+];
+// 各分類につき0-basedのカテゴリ複数を指定できる。これは学習上の概略モデル。
+const EVENTS=[
+ {id:'gas',name:'可燃性ガス爆発（典型例）',color:'#f7bd60',d:[[0],[0],[0],[1,2],[0,1,3]],time:0.1,scale:3,note:'可燃性ガスの急速燃焼。爆燃・拘束条件による変化がある。',caveat:'ガスの種類・体積・濃度・空間条件によって時間と規模は大幅に変化。'},
+ {id:'dust',name:'粉じん爆発（典型例）',color:'#f29b7d',d:[[0],[0],[0],[1,2],[0,1,2]],time:0.5,scale:3,note:'浮遊した可燃性粉じんの急速燃焼。圧力上昇は閉じ込め条件などに依存。',caveat:'粉じんの種類・分散・周囲条件によって大きく異なる。'},
+ {id:'steam',name:'水蒸気爆発（例示）',color:'#74dbdd',d:[[1,2],[2,3],[2],[0,1,2],[0,2,3]],time:0.03,scale:2,note:'水の急激な気化と膨張。燃焼を必要としない物理的爆発。',caveat:'さまざまな機構があり、単一の代表時間を定義しにくい。'},
+ {id:'vessel',name:'高圧容器の破裂',color:'#a6c2ff',d:[[2],[3],[2,3],[2],[0,2,3]],time:0.01,scale:2,note:'高圧ガスの急膨張と容器破断。燃焼不要。',caveat:'破断形状・内容物・容器の大きさにより大きく変わる。'},
+ {id:'volcano',name:'爆発的火山噴火（概略）',color:'#da9af2',d:[[1,2],[2,3],[2,3,4],[0],[0,1,2,3]],time:10,scale:5,note:'マグマ内の気体膨張や水との相互作用。噴火型式により多様。',caveat:'単発噴出・噴火エピソード・噴火期間を混同しないこと。'},
+ {id:'nuclear',name:'核爆発（概略）',color:'#d7e87c',d:[[3],[4],[3],[0],[0,1,2,3,4]],time:0.001,scale:5,note:'核反応による短時間のエネルギー解放。熱・爆風など複数作用。',caveat:'実際の反応時間や影響規模を示す数値ではない。'}
+];
+// time と scale は Phase 2 の可視化設計を検証するための仮想的配置データ。
+// 現実の代表値を示していない（計測値と混同しない）。
+const scene=new THREE.Scene();scene.background=new THREE.Color('#08111e');scene.fog=new THREE.Fog('#08111e',22,42);
+const camera=new THREE.PerspectiveCamera(47,innerWidth/innerHeight,.1,100);const homePos=new THREE.Vector3(12,11,16);camera.position.copy(homePos);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;document.querySelector('#view').append(renderer.domElement);
+const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,2.05,0);controls.enableDamping=true;controls.dampingFactor=.07;controls.minDistance=7;controls.maxDistance=36;controls.maxPolarAngle=Math.PI*.94;controls.update();
+scene.add(new THREE.AmbientLight(0xffffff,1.5));const light=new THREE.DirectionalLight('#d2e7ff',1.7);light.position.set(5,12,8);scene.add(light);
+const grid=new THREE.GridHelper(15,30,'#344d65','#1e3145');grid.position.y=-.03;scene.add(grid);
+const N=5,R=5.1,H=5.1,STEPS=5,sectorWidth=.87;
+const angles=AXES.map((_,i)=>-Math.PI/2+i*2*Math.PI/N);
+function pos(i,r,y,tang=0){const a=angles[i];return new THREE.Vector3(Math.cos(a)*r-Math.sin(a)*tang,y,Math.sin(a)*r+Math.cos(a)*tang)}
+function line(a,b,color,opacity=.6,width=1){const g=new THREE.BufferGeometry().setFromPoints([a,b]);const m=new THREE.LineBasicMaterial({color,transparent:true,opacity,depthWrite:false});const l=new THREE.Line(g,m);scene.add(l);return l}
+// 扇形の壁（中心から放射する壁ではなく、一定半径のリング上に沿った曲面パネル）
+const labelSpecs=[];
+for(let i=0;i<N;i++){
+ const a=angles[i],def=AXES[i],count=def.entries.length;const color=new THREE.Color(def.color);
+ for(let j=0;j<count;j++){
+  const y0=j*H/STEPS,y1=(j+1)*H/STEPS;let v=[],idx=[];const segments=12;
+  for(let k=0;k<=segments;k++){const t=a-sectorWidth/2+sectorWidth*k/segments;v.push(R*Math.cos(t),y0,R*Math.sin(t),R*Math.cos(t),y1,R*Math.sin(t));if(k<segments){const z=k*2;idx.push(z,z+1,z+2,z+1,z+3,z+2)}}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(v,3));g.setIndex(idx);g.computeVertexNormals();const m=new THREE.MeshBasicMaterial({color,transparent:true,opacity:j%2===0?.19:.12,side:THREE.DoubleSide,depthWrite:false});scene.add(new THREE.Mesh(g,m));
+  for(let edge of [-sectorWidth/2,sectorWidth/2]){const t=a+edge;line(new THREE.Vector3(R*Math.cos(t),y0,R*Math.sin(t)),new THREE.Vector3(R*Math.cos(t),y1,R*Math.sin(t)),def.color,.38)}
+  const arc=[];for(let k=0;k<=18;k++){let t=a-sectorWidth/2+sectorWidth*k/18;arc.push(new THREE.Vector3(R*Math.cos(t),y0,R*Math.sin(t)))}for(let k=1;k<arc.length;k++)line(arc[k-1],arc[k],def.color,.32);
+ }
+ labelSpecs.push({type:'heading',axis:i,p:pos(i,R+.5,H+.5),text:def.name});
+ def.entries.forEach((entry,j)=>labelSpecs.push({type:'sub',axis:i,level:j,p:pos(i,R+.18,(j+.5)*H/STEPS),text:entry}));
+}
+const ringPts=[];for(let k=0;k<=100;k++){let a=k*Math.PI*2/100;ringPts.push(new THREE.Vector3(R*Math.cos(a),.01,R*Math.sin(a)))}for(let k=1;k<ringPts.length;k++)line(ringPts[k-1],ringPts[k],'#546f86',.18);
+// 3DラベルはHTMLオーバーレイに表示し、カメラに追従させる。
+const labels=document.querySelector('#labels');labelSpecs.forEach(s=>{let e=document.createElement('div');e.className='lab '+s.type;e.textContent=s.text;e.style.borderColor=AXES[s.axis].color+'77';labels.append(e);s.el=e});
+const groups=new Map(),clickable=[],seen=new Map(),counts=new Map();
+let comparePair=null, filterSelection=Array(AXES.length).fill('');
+for(const e of EVENTS)e.d.forEach((entries,axis)=>entries.forEach(cat=>{const key=axis+':'+cat;counts.set(key,(counts.get(key)||0)+1)}));
+const timeMin=.001,timeMax=10; // ここはあくまで仮値を配置するための対数スケール
+let timeEnabled=true;
+function radiusFor(e){return timeEnabled ? 2.15 + (Math.log10(e.time)-Math.log10(timeMin))/(Math.log10(timeMax)-Math.log10(timeMin))*2.55 : 3.65}
+function addLocalLine(group,a,b,color,opacity,width){const g=new THREE.BufferGeometry().setFromPoints([a,b]);const m=new THREE.LineBasicMaterial({color,transparent:true,opacity,depthWrite:false});const line=new THREE.Line(g,m);line.userData.originalOpacity=opacity;group.add(line);return line}
+const sizeFor=(e,primary)=>.045 + (Math.sqrt(e.scale)/Math.sqrt(5))*(primary?.115:.066);
+const ringGuides=[];
+for(let k=0;k<=4;k++){const rr=2.15+k*2.55/4,pts=[];for(let j=0;j<=100;j++){const a=j*2*Math.PI/100;pts.push(new THREE.Vector3(rr,.035,0).applyAxisAngle(new THREE.Vector3(0,1,0),a))}const geom=new THREE.BufferGeometry().setFromPoints(pts);const ln=new THREE.Line(geom,new THREE.LineBasicMaterial({color:'#91cbe1',transparent:true,opacity:.2}));scene.add(ln);ringGuides.push(ln)}
+function createEventGroup(e){const group=new THREE.Group();scene.add(group);groups.set(e.id,group);e.enabled=true;let mainPoints=[];
+ e.d.forEach((entries,axis)=>{const pts=[];entries.forEach((cat,n)=>{const key=axis+':'+cat;const index=seen.get(key)||0;seen.set(key,index+1);const num=counts.get(key)||1;const tang=(index-(num-1)/2)*.18;
+ const p=pos(axis,radiusFor(e),(cat+.5)*H/STEPS,tang);
+ const mesh=new THREE.Mesh(new THREE.SphereGeometry(sizeFor(e,n===0),16,12),new THREE.MeshStandardMaterial({color:e.color,emissive:e.color,emissiveIntensity:n===0?.35:.12,roughness:.4,transparent:n>0,opacity:n===0?1:.65}));
+ mesh.position.copy(p);mesh.userData={eventId:e.id,axis,cat,primary:n===0,offset:tang};group.add(mesh);clickable.push(mesh);pts.push(mesh);
+ if(n>0)addLocalLine(group,pts[0].position,mesh.position,e.color,.28,1);
+ });mainPoints.push(pts[0]);});
+ for(let i=0;i<mainPoints.length;i++)addLocalLine(group,mainPoints[i].position,mainPoints[(i+1)%mainPoints.length].position,e.color,.85,2);
+ // Keep mesh references; rebuilding all geometry ensures correct radial layout and line endpoints.
+ e.group=group;
+}
+function rebuildEvents(){for(const g of groups.values()){scene.remove(g);g.traverse(o=>{o.geometry?.dispose();if(o.material)o.material.dispose()})}groups.clear();clickable.length=0;seen.clear();const active=new Map(EVENTS.map(e=>[e.id,e.enabled]));EVENTS.forEach(createEventGroup);EVENTS.forEach(e=>{e.enabled=active.get(e.id);groups.get(e.id).visible=e.enabled});}
+EVENTS.forEach(createEventGroup);
+document.querySelector('#timeLegend').textContent='仮の目盛：0.001秒 ～ 10秒';
+document.querySelector('#timeOn').onchange=ev=>{timeEnabled=ev.target.checked;ringGuides.forEach(o=>o.visible=timeEnabled);rebuildEvents();updateLabels()};
+const axes=document.querySelector('#axes');AXES.forEach((a,i)=>{axes.insertAdjacentHTML('beforeend',`<div class="axis"><i class="dot" style="background:${a.color}"></i>${a.name}<small>${a.entries.length}段</small></div>`)});
+const eventList=document.querySelector('#events');EVENTS.forEach(e=>{let row=document.createElement('label');row.className='item';let input=document.createElement('input');input.type='checkbox';input.checked=true;input.addEventListener('change',()=>{e.enabled=input.checked;groups.get(e.id).visible=e.enabled;updateLabels();updateMatchCount()});e.checkbox=input;let text=document.createElement('span');text.textContent=e.name;let dot=document.createElement('i');dot.className='dot';dot.style.background=e.color;row.dataset.id=e.id;row.append(input,dot,text);row.addEventListener('click',ev=>{if(ev.target===input)return;ev.preventDefault();select(e.id)});eventList.append(row)});
+let selected=null,showLabels=true,spin=false;const info=document.querySelector('#info');function select(id){selected=id;let e=EVENTS.find(v=>v.id===id);info.innerHTML=`<strong style="color:${e.color}">${e.name}</strong><div>${e.note}</div><div style="margin-top:6px">仮設定：時間 ${e.time}秒 ／ 規模クラス ${e.scale}/5</div><div style="margin-top:5px;color:#93abc2">${e.caveat}</div><div style="margin-top:6px;color:#93abc2">${e.d.map((cats,i)=>AXES[i].name+'：'+cats.map((n,j)=>(j===0?'●':'○')+AXES[i].entries[n]).join('・')).join('<br>')}</div>`;updateLabels()}
+function updateLabels(){applyHighlight();const active=EVENTS.filter(e=>e.enabled);const levels=AXES.map((_,i)=>new Set(active.flatMap(e=>e.d[i])));labelSpecs.forEach(s=>{const visible=showLabels&&(s.type==='heading'||levels[s.axis].has(s.level));s.el.style.display=visible?'block':'none'})}
+updateLabels();document.querySelector('#all').onclick=()=>{EVENTS.forEach(e=>{e.enabled=true;e.checkbox.checked=true;groups.get(e.id).visible=true});updateLabels();updateMatchCount()};document.querySelector('#none').onclick=()=>{EVENTS.forEach(e=>{e.enabled=false;e.checkbox.checked=false;groups.get(e.id).visible=false});updateLabels();updateMatchCount()};document.querySelector('#home').onclick=()=>{controls.target.set(0,2.05,0);camera.position.copy(homePos);controls.update()};document.querySelector('#top').onclick=()=>{controls.target.set(0,2,0);camera.position.set(.01,20,0);controls.update()};document.querySelector('#spin').onclick=ev=>{spin=!spin;controls.autoRotate=spin;controls.autoRotateSpeed=.6;ev.target.textContent='自動回転 '+(spin?'ON':'OFF');ev.target.classList.toggle('active',spin)};document.querySelector('#labelsBtn').onclick=ev=>{showLabels=!showLabels;ev.target.textContent='ラベル '+(showLabels?'ON':'OFF');ev.target.classList.toggle('active',showLabels);updateLabels()};renderer.domElement.addEventListener('dblclick',()=>document.querySelector('#home').click());
+const raycaster=new THREE.Raycaster(),mouse=new THREE.Vector2();renderer.domElement.addEventListener('pointerup',ev=>{if(ev.button!==0)return;if(Math.abs(ev.clientX-(window._downX||ev.clientX))>6||Math.abs(ev.clientY-(window._downY||ev.clientY))>6)return;const bounds=renderer.domElement.getBoundingClientRect();mouse.x=(ev.clientX-bounds.left)/bounds.width*2-1;mouse.y=-(ev.clientY-bounds.top)/bounds.height*2+1;raycaster.setFromCamera(mouse,camera);const hits=raycaster.intersectObjects(clickable,false);if(hits.length)select(hits[0].object.userData.eventId)});renderer.domElement.addEventListener('pointerdown',ev=>{window._downX=ev.clientX;window._downY=ev.clientY});
+
+// ---- Phase 4: 2D concentric categorical projection (shared event state) ----
+let displayMode='3d';
+const SVGNS='http://www.w3.org/2000/svg';
+const flatRoot=document.querySelector('#flatCanvas');
+const svgEl=(tag,attrs={},parent)=>{const el=document.createElementNS(SVGNS,tag);for(const [k,v] of Object.entries(attrs))el.setAttribute(k,String(v));if(parent)parent.append(el);return el;};
+const pt=(a,r)=>({x:400+r*Math.cos(a),y:400+r*Math.sin(a)});
+const polarDegrees=(i)=>-Math.PI/2+(i+.5)*Math.PI*2/5;
+function sectorPath(inner,outer,start,end){const a=pt(start,outer),b=pt(end,outer),c=pt(end,inner),d=pt(start,inner);return `M${a.x} ${a.y} A${outer} ${outer} 0 0 1 ${b.x} ${b.y} L${c.x} ${c.y} A${inner} ${inner} 0 0 0 ${d.x} ${d.y}Z`}
+function createFlat(){
+ const svg=svgEl('svg',{viewBox:'0 0 800 800',role:'img','aria-label':'5分類の扇形とカテゴリ段を同心円状に展開した比較図'});
+ svgEl('title',{},svg).textContent='爆発の構造地図：2D同心円展開';
+ const active=EVENTS.filter(e=>e.enabled);
+ const activeLevels=AXES.map((a,i)=>new Set(active.flatMap(e=>e.d[i])));
+ const outlines=svgEl('g',{},svg);
+ for(let i=0;i<5;i++){
+   const axis=AXES[i], mid=polarDegrees(i), span=2*Math.PI/5, gap=.016;
+   const start=mid-span/2+gap,end=mid+span/2-gap;
+   for(let j=0;j<axis.entries.length;j++){
+     const inside=66+j*54, outside=inside+53;
+     const path=svgEl('path',{d:sectorPath(inside,outside,start,end),fill:axis.color,'fill-opacity':activeLevels[i].has(j)?'.21':'.07',stroke:axis.color,'stroke-opacity':'.5','stroke-width':'.85',class:'target'},outlines);
+     const title=svgEl('title',{},path);title.textContent=`${axis.name}：${axis.entries[j]}`;
+     path.addEventListener('click',()=>{document.querySelectorAll('#filters select')[i].value=String(j);filterSelection[i]=String(j);updateMatchCount();document.querySelector('#info').innerHTML=`<strong>${axis.name}：${axis.entries[j]}</strong><div>逆引き条件にセットしました。「一致のみ表示」で事象を絞り込めます。</div>`;});
+     if(showLabels&&activeLevels[i].has(j)){
+       const l=pt(mid,inside+26);
+       const label=svgEl('text',{x:l.x,y:l.y,'text-anchor':'middle','dominant-baseline':'middle',class:'categoryLabel'},outlines);
+       label.textContent=axis.entries[j];
+     }
+   }
+   const h=pt(mid,371),head=svgEl('text',{x:h.x,y:h.y,'text-anchor':'middle','dominant-baseline':'middle',class:'sectorLabel'},outlines);
+   head.textContent=axis.name;
+ }
+ // Shared position definition: radial ring == category index, not time.
+ const nodeMap=new Map(), reservations=new Map();
+ for(const e of active){
+   const nodes=[];
+   e.d.forEach((cats,i)=>cats.forEach((cat,k)=>{
+     const key=i+':'+cat;
+     const ordinal=reservations.get(key)||0;reservations.set(key,ordinal+1);
+     const theta=polarDegrees(i)+((ordinal%7)-3)*.018;
+     const radius=66+cat*54+26+((Math.floor(ordinal/7)%3)-1)*4;
+     nodes.push({p:pt(theta,radius),primary:k===0,axis:i,category:cat});
+   }));nodeMap.set(e.id,nodes);
+ }
+ // For readability, a subdued backbone follows the first category on each axis;
+ // secondary categories branch from their axis' primary node.
+ for(const e of active){
+   const ns=nodeMap.get(e.id);let primary=ns.filter(n=>n.primary).sort((a,b)=>a.axis-b.axis);
+   const focused=comparePair===null||comparePair.includes(e.id);
+   const opacity=focused?.81:.12;
+   const path=svgEl('path',{d:primary.map((n,k)=>(k?'L':'M')+n.p.x.toFixed(1)+' '+n.p.y.toFixed(1)).join(' ')+'Z',fill:'none',stroke:e.color,'stroke-width':2.5,'stroke-opacity':opacity,'stroke-linejoin':'round'},svg);
+   svgEl('title',{},path).textContent=e.name;
+   for(const n of ns.filter(n=>!n.primary)){
+     const root=primary.find(v=>v.axis===n.axis);if(!root)continue;
+     svgEl('line',{x1:root.p.x,y1:root.p.y,x2:n.p.x,y2:n.p.y,stroke:e.color,'stroke-width':1.5,'stroke-opacity':opacity*.77},svg);
+   }
+ }
+ for(const e of active){
+   for(const n of nodeMap.get(e.id)){
+     const focused=comparePair===null||comparePair.includes(e.id);
+     const circle=svgEl('circle',{cx:n.p.x,cy:n.p.y,r:n.primary?6.2:4.0,fill:e.color,'fill-opacity':focused?(n.primary?1:.66):.12,class:'node',tabindex:'0',role:'button','aria-label':`${e.name} ${AXES[n.axis].name} ${AXES[n.axis].entries[n.category]}`},svg);
+     svgEl('title',{},circle).textContent=`${e.name}\n${AXES[n.axis].name}：${AXES[n.axis].entries[n.category]}`;
+     circle.addEventListener('click',()=>select(e.id));circle.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();select(e.id)}});
+   }
+ }
+ svgEl('circle',{cx:400,cy:400,r:52,fill:'#14283b',stroke:'#7f9cb4','stroke-opacity':'.5'},svg);
+ const a=svgEl('text',{x:400,y:391,'text-anchor':'middle',fill:'#e3eff8','font-size':14,'font-weight':700},svg);a.textContent='分類空間';
+ const b=svgEl('text',{x:400,y:412,'text-anchor':'middle',fill:'#a0b7cd','font-size':10},svg);b.textContent=`表示 ${active.length} / ${EVENTS.length}`;
+ flatRoot.replaceChildren(svg);
+}
+function switchMode(mode){
+ displayMode=mode;const is2d=mode==='2d';document.body.classList.toggle('mode2d',is2d);
+ document.querySelector('#flatView').hidden=!is2d;
+ for(const [id,on] of [['mode3d',!is2d],['mode2d',is2d]]){const button=document.querySelector('#'+id);button.classList.toggle('active',on);button.setAttribute('aria-pressed',String(on))}
+ if(is2d)createFlat();else{renderer.setSize(innerWidth,innerHeight);camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();updateLabels()}
+}
+document.querySelector('#mode3d').onclick=()=>switchMode('3d');
+document.querySelector('#mode2d').onclick=()=>switchMode('2d');
+// Re-render only after state changes; all interaction modes share e.enabled / comparePair.
+const originalUpdateLabels=updateLabels;
+updateLabels=function(){originalUpdateLabels();if(displayMode==='2d')createFlat()};
+
+// ---- Phase 3: 事象検索、逆引き、比較、プリセット ----
+const $=id=>document.getElementById(id);
+const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function setVisible(ids){const target=new Set(ids);EVENTS.forEach(e=>{e.enabled=target.has(e.id);e.checkbox.checked=e.enabled;groups.get(e.id).visible=e.enabled});updateLabels();updateMatchCount()}
+function updateMatchCount(){const matched=EVENTS.filter(matchesFilters);$('matchCount').textContent=`分類条件に一致：${matched.length}件／全${EVENTS.length}件 ｜ 表示中：${EVENTS.filter(e=>e.enabled).length}件`}
+function matchesFilters(e){return filterSelection.every((v,i)=>v===''||e.d[i].includes(Number(v)))}
+let filterRestore=null, compareRestore=null;
+const visibleIds=()=>EVENTS.filter(e=>e.enabled).map(e=>e.id);
+function clearComparisonUI(){comparePair=null;$('comparison').style.display='none'}
+const presets=[['すべて',EVENTS.map(e=>e.id)],['化学系',['gas','dust']],['物理系',['steam','vessel']],['自然現象',['volcano']],['核反応',['nuclear']]];
+for(const [label,ids] of presets){const b=document.createElement('button');b.textContent=label;b.onclick=()=>{clearComparisonUI();filterRestore=null;compareRestore=null;setVisible(ids)};$('presets').append(b)}
+const filterArea=$('filters');AXES.forEach((axis,i)=>{const row=document.createElement('label');row.textContent=axis.name;const sel=document.createElement('select');sel.setAttribute('aria-label',axis.name+'で絞り込み');sel.append(new Option('すべて',''));axis.entries.forEach((c,j)=>sel.append(new Option(c,String(j))));sel.onchange=()=>{filterSelection[i]=sel.value;updateMatchCount();updateLabels()};row.append(sel);filterArea.append(row)});
+$('clearFilters').onclick=()=>{filterSelection.fill('');filterArea.querySelectorAll('select').forEach(s=>s.value='');const restore=filterRestore??compareRestore;filterRestore=null;compareRestore=null;clearComparisonUI();if(restore!==null)setVisible(restore);else updateLabels();updateMatchCount()};
+$('showMatched').onclick=()=>{if(filterRestore===null)filterRestore=visibleIds();clearComparisonUI();compareRestore=null;setVisible(EVENTS.filter(matchesFilters).map(e=>e.id))};
+$('searchEvent').addEventListener('input',ev=>{const q=ev.target.value.trim().toLocaleLowerCase('ja');let n=0;for(const e of EVENTS){const blob=[e.name,e.note,e.caveat,...e.d.flatMap((cats,i)=>cats.map(c=>AXES[i].entries[c]))].join(' ').toLocaleLowerCase('ja');const visible=blob.includes(q);e.checkbox.closest('.item').classList.toggle('hiddenSearch',!visible);if(visible)n++} $('listCount').textContent=`検索結果 ${n} / ${EVENTS.length} 件（検索は表示状態を変更しません）`});
+$('listCount').textContent=`検索結果 ${EVENTS.length} / ${EVENTS.length} 件`;
+const aSelect=$('compareA'),bSelect=$('compareB');for(const e of EVENTS){aSelect.append(new Option(e.name,e.id));bSelect.append(new Option(e.name,e.id))}bSelect.selectedIndex=1;
+function compareInfo(a,b){let rows=[];for(let i=0;i<AXES.length;i++){const common=a.d[i].filter(x=>b.d[i].includes(x));const onlyA=a.d[i].filter(x=>!b.d[i].includes(x));const onlyB=b.d[i].filter(x=>!a.d[i].includes(x));rows.push(`<div style="margin:7px 0"><b>${escapeHTML(AXES[i].name)}</b><div>共通：${common.map(x=>escapeHTML(AXES[i].entries[x])).join('・')||'なし'}</div><div style="color:${a.color}">${escapeHTML(a.name)}のみ：${onlyA.map(x=>escapeHTML(AXES[i].entries[x])).join('・')||'なし'}</div><div style="color:${b.color}">${escapeHTML(b.name)}のみ：${onlyB.map(x=>escapeHTML(AXES[i].entries[x])).join('・')||'なし'}</div></div>`)}return `<b>比較：${escapeHTML(a.name)} × ${escapeHTML(b.name)}</b><div class="metaRow">※共通は分類ラベルの一致。物理的類似度ではありません。</div>${rows.join('')}`}
+$('compareStart').onclick=()=>{if(aSelect.value===bSelect.value){$('comparison').style.display='block';$('comparison').textContent='異なる事象を2つ選択してください。';return}if(compareRestore===null)compareRestore=visibleIds();comparePair=[aSelect.value,bSelect.value];setVisible(comparePair);const a=EVENTS.find(e=>e.id===comparePair[0]),b=EVENTS.find(e=>e.id===comparePair[1]);$('comparison').innerHTML=compareInfo(a,b);$('comparison').style.display='block';updateLabels()};
+$('compareStop').onclick=()=>{const restore=compareRestore;compareRestore=null;clearComparisonUI();if(restore!==null)setVisible(restore);else updateLabels()};
+function applyHighlight(){for(const e of EVENTS){const g=groups.get(e.id);if(!g)continue;const focus=comparePair===null||comparePair.includes(e.id);g.traverse(o=>{if(o.isLine&&o.material){o.material.opacity=focus?(o.userData.originalOpacity??o.material.userData?.originalOpacity??.73):.06}if(o.isMesh&&o.material){if(o.userData.eventId){o.material.opacity=focus?(o.userData.primary?1:.65):.09;o.material.transparent=true}}});}}
+// Preserve each line's authored opacity for repeatable comparison transitions.
+for(const g of groups.values())g.traverse(o=>{if(o.isLine&&o.material)o.userData.originalOpacity=o.material.opacity});
+const oldRebuild=rebuildEvents;
+// When radial placement is rebuilt, the old scene objects are replaced.
+$('timeOn').addEventListener('change',()=>{for(const g of groups.values())g.traverse(o=>{if(o.isLine&&o.material)o.userData.originalOpacity=o.material.opacity});updateLabels()});
+updateMatchCount();
+
+function resize(){
+ document.querySelector('#help').innerHTML=matchMedia('(max-width:850px)').matches?'1本指：回転 ／ 2本指：拡大縮小・移動':'左ドラッグ：回転 ／ 右ドラッグ：平行移動<br>ホイール：拡大縮小 ／ ダブルクリック：視点リセット';
+ const bounds=document.querySelector('#view').getBoundingClientRect();
+ // Hidden in 2D mode; preserve the last valid renderer size until 3D returns.
+ if(!bounds.width||!bounds.height)return;
+ camera.aspect=bounds.width/bounds.height;
+ camera.zoom=Math.min(1,camera.aspect/.95);
+ camera.updateProjectionMatrix();renderer.setSize(bounds.width,bounds.height);
+}
+addEventListener('resize',resize);
+new ResizeObserver(resize).observe(document.querySelector('#view'));
+document.querySelector('#panelToggle').onclick=ev=>{
+ const collapsed=document.body.classList.toggle('panelCollapsed');
+ document.querySelector('#ui').classList.toggle('collapsed',collapsed);
+ ev.target.textContent=collapsed?'操作を展開':'操作を縮小';
+ ev.target.setAttribute('aria-expanded',String(!collapsed));resize();
+};
+if(matchMedia('(max-width:850px)').matches)document.querySelector('#help').innerHTML='1本指：回転 ／ 2本指：拡大縮小・移動';
+resize();
+const projected=new THREE.Vector3();function animate(){requestAnimationFrame(animate);controls.update();const rect=renderer.domElement.getBoundingClientRect();labelSpecs.forEach(s=>{if(s.el.style.display==='none')return;projected.copy(s.p).project(camera);const inFront=projected.z>-1&&projected.z<1&&Math.abs(projected.x)<1.15&&Math.abs(projected.y)<1.15;s.el.style.visibility=inFront?'visible':'hidden';s.el.style.left=(projected.x*.5+.5)*rect.width+'px';s.el.style.top=(-projected.y*.5+.5)*rect.height+'px';});renderer.render(scene,camera)}animate();document.querySelector('#loading').remove();
+</script></body></html>
+
+
+
